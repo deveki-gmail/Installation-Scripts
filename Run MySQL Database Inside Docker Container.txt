@@ -1,0 +1,39 @@
+devekinandan@ubuntu-docker:~$ sudo docker run --name test-mysql -e MYSQL_DATABASE=test -e MYSQL_ROOT_PASSWORD=hello123 -d mysql/mysql-server:5.5
+Unable to find image 'mysql/mysql-server:5.5' locally
+5.5: Pulling from mysql/mysql-server
+03ba86c1f15c: Pull complete 
+31e5ab909a54: Pull complete 
+9c4cafc7eb10: Pull complete 
+046b85ee2e81: Pull complete 
+Digest: sha256:5a37b78beef2cde568e6f06f8b2a5e70e431ca7388e091e5e994e52351f147c4
+Status: Downloaded newer image for mysql/mysql-server:5.5
+b7e917ad662076c3eb968382176c6b1d4cbe79746f24f5116647ad2e3f5c2fad
+devekinandan@ubuntu-docker:~$ sudo docker ps
+CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS                             PORTS               NAMES
+b7e917ad6620        mysql/mysql-server:5.5   "/entrypoint.sh mysq…"   26 seconds ago      Up 24 seconds (health: starting)   3306/tcp            test-mysql
+devekinandan@ubuntu-docker:~$ sudo docker exec -it test-mysql mysql -uroot -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 5
+Server version: 5.5.61 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+4 rows in set (0.02 sec)
+
+mysql> 

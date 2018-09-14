@@ -1,0 +1,78 @@
+************************Kubernetes Commands**********************************************
+1. kubectl get nodes
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get nodes
+NAME                                          STATUS    ROLES     AGE       VERSION
+gke-kb-cluster-1-default-pool-1939fd3a-737m   Ready     <none>    2m        v1.9.7-gke.6
+gke-kb-cluster-1-default-pool-1939fd3a-lgqm   Ready     <none>    2m        v1.9.7-gke.6
+gke-kb-cluster-1-default-pool-1939fd3a-nv0z   Ready     <none>    2m        v1.9.7-gke.6
+gke-kb-cluster-1-default-pool-1939fd3a-s7t1   Ready     <none>    2m        v1.9.7-gke.6
+
+2. kubectl get pods
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get pods
+No resources found.
+
+3. Pod create command
+-------------------------------------------
+devekinandan@cloudshell:~ (silent-eye-204413)$ sudo vi demo.yml
+
+devekinandan@cloudshell:~ (silent-eye-204413)$ sudo vi demo.yml
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl create -f demo.yml                                                                                         
+pod "myapp-pod" created
+
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get pods
+NAME        READY     STATUS    RESTARTS   AGE
+myapp-pod   1/1       Running   0          2m
+
+
+
+
+
+-------------------------------------------
+One full Example using Command lines..
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get deployment
+No resources found.
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl run my-nginx --image=nginx --replicas=1 --port=80
+deployment "my-nginx" created
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get deployment -o wide
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE       CONTAINERS   IMAGES    SELECTOR
+my-nginx   1         1         1            0           13s       my-nginx     nginx     run=my-nginx
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get pods -o wide
+NAME                       READY     STATUS    RESTARTS   AGE       IP         NODE
+my-nginx-9d5677d94-gqtck   1/1       Running   0          25s       10.8.2.7   gke-kb-cluster-1-default-pool-1939fd3a-s7t1
+myapp-pod                  1/1       Running   0          1h        10.8.1.6   gke-kb-cluster-1-default-pool-1939fd3a-lgqm
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl expose deployment my-nginx --port=80 --type=LoadBalancer
+service "my-nginx" exposed
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get service -o wide
+NAME         TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE       SELECTOR
+kubernetes   ClusterIP      10.11.240.1    <none>        443/TCP        10h       <none>
+my-nginx     LoadBalancer   10.11.247.14   <pending>     80:31820/TCP   12s       run=my-nginx
+devekinandan@cloudshell:~ (silent-eye-204413)$ kubectl get service -o wide
+NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)        AGE       SELECTOR
+kubernetes   ClusterIP      10.11.240.1    <none>           443/TCP        10h       <none>
+my-nginx     LoadBalancer   10.11.247.14   35.192.136.234   80:31820/TCP   1m        run=my-nginx
+devekinandan@cloudshell:~ (silent-eye-204413)$ curl http://35.192.136.234:80
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
