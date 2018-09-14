@@ -1,0 +1,113 @@
+********************************************************Docker Swarm********************************
+
+Switch to root user... 
+sudo s
+
+
+1. Install Docker CE on VM. Refer 
+(https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce-1).
+
+********************* Create Docker Swarm Manager *********************
+root@ubuntu-docker:~# docker swarm init --advertise-addr 10.142.0.7 
+Swarm initialized: current node (tq8qakj84oc9pzivd5q1ja24f) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-1usjq09m9f2fsruu3c9s4ctdqkpai0d0iwj5ymgx5oopyjoo73-654f7g729qdwplf0ux8ykuen5 10.142.0.7:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+
+******************** Link Worker With Swarm Manager *****************************************
+root@ubuntu-docker-2:~# docker swarm join --token SWMTKN-1-1usjq09m9f2fsruu3c9s4ctdqkpai0d0iwj5ymgx5oopyjoo73-654f7g729qdwplf0ux8ykuen5 10.142.0.7:2377
+This node joined a swarm as a worker.
+root@ubuntu-docker-2:~# 
+
+**************************** Verify The Nodes with Swarm Manager ***************************************
+
+root@ubuntu-docker:~# docker --version
+Docker version 17.12.1-ce, build 7390fc6
+root@ubuntu-docker:~# lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 18.04 LTS
+Release:        18.04
+Codename:       bionic
+root@ubuntu-docker:~# docker node ls
+ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS
+tq8qakj84oc9pzivd5q1ja24f *   ubuntu-docker       Ready               Active              Leader
+461dvzc77lg6yx8lx9evluj6s     ubuntu-docker-2     Ready               Active              
+root@ubuntu-docker:~# 
+*************************************************************************************************************
+
+*************************************** Creating and Consuming Services *************************************
+root@ubuntu-docker:~# docker service create --name "springdockertest" -p 8085:8085 springdockertest
+image springdockertest:latest could not be accessed on a registry to record
+its digest. Each node will access springdockertest:latest independently,
+possibly leading to different nodes running different
+versions of the image.
+
+uwutrcpq3txreq8wgo01lu54l
+overall progress: 1 out of 1 tasks 
+1/1: running   
+verify: Service converged 
+root@ubuntu-docker:~# curl http://10.142.0.7:8085/hi
+Hi.....Deveki nandan mishraroot@ubuntu-docker:~# 
+
+*****************************************************************************************************************
+root@ubuntu-docker:~# docker service ls
+ID                  NAME                MODE                REPLICAS            IMAGE                     PORTS
+uwutrcpq3txr        springdockertest    replicated          1/1                 springdockertest:latest   *:8085->8085/tcp
+root@ubuntu-docker:~# 
+
+******************************************************************************************************************
+root@ubuntu-docker:~# docker ps
+CONTAINER ID        IMAGE                     COMMAND                  CREATED             STATUS              PORTS               NAMES
+88b8bc2e185e        springdockertest:latest   "java -jar springdoc…"   2 minutes ago       Up 2 minutes        8085/tcp            springdockertest.1.v6aeeucti9lax423er1zbw5z0
+root@ubuntu-docker:~# 
+
+*******************************************************************************************************************
+root@ubuntu-docker:~# docker service ps springdockertest
+ID                  NAME                 IMAGE                     NODE                DESIRED STATE       CURRENT STATE           ERROR               PORTS
+v6aeeucti9la        springdockertest.1   springdockertest:latest   ubuntu-docker       Running             Running 4 minutes ago                       
+root@ubuntu-docker:~# 
+*******************************************************************************************************************
+*******************************************	Remove Service Command ********************************************
+root@ubuntu-docker:~# docker service rm springdockertest
+springdockertest
+
+***********************************************************************************************************************
+********************* Deploy / Create Service on All the nodes of cluster *********************************************
+root@ubuntu-docker:~# docker service create --name "springdockertest" -p 8085:8085 --mode global  springdockertest
+
+************************************************************************************************************************
+
+
+
+
+
+
+
+
+=========================================== Removing Docker Images and Containers ========================================
+
+root@ubuntu-docker:~# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+springdockertest    latest              416c120ff6a1        2 hours ago         640MB
+openjdk             8                   fe9f7b1e4fa0        2 days ago          624MB
+
+root@ubuntu-docker:~# docker rmi 416c120ff6a1
+Error response from daemon: conflict: unable to delete 416c120ff6a1 (must be forced) - image is being used by stopped container 1205c8459557
+
+------ Remove Docker container -----------------
+root@ubuntu-docker:~# docker rm 1205c8459557
+1205c8459557
+
+------ Remove Docker Image -----------------
+root@ubuntu-docker:~# docker rmi 416c120ff6a1
+Untagged: springdockertest:latest
+Deleted: sha256:416c120ff6a118acf45f1ce3ae55fae45cc8e839d5186e5f4624bdb7b6b32932
+Deleted: sha256:fa6b790bb4a1e30283e463071f714c53b54e5a426467f54fd717c2ab57933642
+Deleted: sha256:e843397dc317625b447546089bd67720fc5107ccc08eae7612940a41f2a5b3e6
+Deleted: sha256:28da3f6c2a573fb94a94bb18fb726a0d59b46412884b2e4315ef06b8e80d9c03
+root@ubuntu-docker:~# 
